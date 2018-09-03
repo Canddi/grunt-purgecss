@@ -24,17 +24,21 @@ module.exports = function(grunt) {
         }
       })
 
-      // purgecss
-      var purgecssResult = new Purgecss({
-        content: options.content,
-        css: src
-      }).purge()[0].css
+      var purgecssSettings = options;
 
+      purgecssSettings.content = options.content;
+      purgecssSettings.css = src;
+
+      // purgecss
+      var purgecssResult = new Purgecss(purgecssSettings).purge()[0].css
+
+      // Save size of file before purge
+      const filesize_before = grunt.file.read(f.dest).length;
       // Write the destination file.
       grunt.file.write(f.dest, purgecssResult);
 
       // Print a success message.
-      grunt.log.writeln('File "' + f.dest + '" created.');
+      grunt.log.writeln('>> '.green + f.dest + ' purged: ' + (Math.round(filesize_before / 1000).toString() + 'kb').green + ' → ' + (Math.round(purgecssResult.length / 1000).toString() + 'kb').green + ' (' + Math.round(100 * (1 - (purgecssResult.length / filesize_before))) + '%).');
     });
   });
 
